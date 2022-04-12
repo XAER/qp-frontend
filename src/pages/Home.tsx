@@ -1,5 +1,5 @@
-import { TextField } from "@mui/material";
 import React from "react";
+import SearchBar from "../components/searchBar/SearchBar";
 
 const Home = () => {
   return (
@@ -13,17 +13,7 @@ const Home = () => {
         }}
       >
         <div style={{ width: "400px" }}>
-          <TextField
-            id="outlined-basic"
-            variant="outlined"
-            fullWidth
-            label="Search"
-            color="success"
-            style={{
-              backgroundColor: "white",
-              borderRadius: "5px",
-            }}
-          />
+          <SearchBar />
         </div>
       </div>
     </>
