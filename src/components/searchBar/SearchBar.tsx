@@ -1,30 +1,40 @@
 import React from "react";
+import { SearchLineDataProvider } from "../../api/CallsProvider";
 import stops from "../../data/stops/Stops";
 import { Stop } from "../../models/Stop";
 import styles from "./SearchBar.module.css";
 
 const SearchBar = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
-
   const [matches, setMatches] = React.useState<Stop[]>([]);
+
 
   const handleSearchTermChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // ! While handling the change, I need to also check if there are matches from the ../../data/stops.json file
-    // ! based off the code value.
     setSearchTerm(event.target.value);
 
     if (event.target.value.length > 0) {
-      const matches = stops.filter((stop: Stop) => {
+      const matchesFound = stops.filter((stop: Stop) => {
+        // I want to show a max of 5 matches.
+        if (matches.length > 5) {
+          return false;
+        }
         return stop.code.includes(event.target.value);
       });
-      setMatches(matches);
+      setMatches(matchesFound);
     }
 
     if (event.target.value === "") {
       setMatches([]);
     }
+  };
+
+  const handleSearch = () => {
+    // Handle making the post request
+    SearchLineDataProvider("it", searchTerm).then((response: any) => {
+      console.log(response);
+    });
   };
 
   return (
@@ -37,7 +47,9 @@ const SearchBar = () => {
           value={searchTerm}
           onChange={handleSearchTermChange}
         />
-        <div className={styles.custom_search_button}>Search</div>
+        <div className={styles.custom_search_button} onClick={handleSearch}>
+          Search
+        </div>
       </div>
       <div
         className={styles.search_bar_results}
