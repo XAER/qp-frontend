@@ -1,13 +1,20 @@
 import React from "react";
 import { SearchLineDataProvider } from "../../api/CallsProvider";
+import { LoadingContext } from "../../context/LoadingProvider";
 import stops from "../../data/stops/Stops";
+import { LineData } from "../../models/Line";
 import { Stop } from "../../models/Stop";
 import styles from "./SearchBar.module.css";
 
-const SearchBar = () => {
+interface SearchBarInterface {
+  onSearch: (data: LineData) => void;
+}
+
+const SearchBar: React.FC<SearchBarInterface> = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [matches, setMatches] = React.useState<Stop[]>([]);
 
+  const { startLoad, endLoad } = React.useContext(LoadingContext);
 
   const handleSearchTermChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -20,7 +27,7 @@ const SearchBar = () => {
         if (matches.length > 5) {
           return false;
         }
-        return stop.code.includes(event.target.value);
+        return stop.Code.includes(event.target.value);
       });
       setMatches(matchesFound);
     }
@@ -32,8 +39,13 @@ const SearchBar = () => {
 
   const handleSearch = () => {
     // Handle making the post request
-    SearchLineDataProvider("it", searchTerm).then((response: any) => {
+    startLoad();
+    SearchLineDataProvider("it", searchTerm).then((response: LineData) => {
       console.log(response);
+      if (response) {
+        onSearch(response);
+      }
+      endLoad();
     });
   };
 
@@ -62,7 +74,7 @@ const SearchBar = () => {
           return (
             <>
               <div key={index} className={styles.search_bar_results_item}>
-                {match.code}
+                {match.Code}
               </div>
               {index === matches.length - 1 ? (
                 ""
