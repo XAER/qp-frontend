@@ -8,12 +8,13 @@ const Home = () => {
   const [searchResult, setSearchResult] = React.useState<LineData>();
 
   const handleSetSearchResult = (data: LineData) => {
+    setResultIsVisible(false);
     setSearchResult(data);
     handleSetResultVisible();
   };
 
-  const handleSetResultVisible = () => {
-    setResultIsVisible(!isResultVisible);
+  const handleSetResultVisible = (visible = true) => {
+    setResultIsVisible(visible);
   };
 
   return (
@@ -30,7 +31,14 @@ const Home = () => {
         <div style={{ width: "40vh", position: "absolute" }}>
           <SearchBar onSearch={handleSetSearchResult} />
         </div>
-        <div style={{ width: "60vh", height: "10vh", marginTop: "20vh", display: "flex" }}>
+        <div
+          style={{
+            height: "10vh",
+            marginTop: "20vh",
+            position: "absolute",
+            marginLeft: "50vh",
+          }}
+        >
           <ResultContainer
             results={searchResult!}
             isVisible={isResultVisible}

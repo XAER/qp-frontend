@@ -5,12 +5,16 @@ import stops from "../../data/stops/Stops";
 import { LineData } from "../../models/Line";
 import { Stop } from "../../models/Stop";
 import styles from "./SearchBar.module.css";
+import { useToast } from "@chakra-ui/react";
 
 interface SearchBarInterface {
   onSearch: (data: LineData) => void;
 }
 
+// TODO hide search bar suggestions on handleSearch
 const SearchBar: React.FC<SearchBarInterface> = ({ onSearch }) => {
+  const toast = useToast();
+
   const [searchTerm, setSearchTerm] = React.useState("");
   const [matches, setMatches] = React.useState<Stop[]>([]);
 
@@ -24,12 +28,11 @@ const SearchBar: React.FC<SearchBarInterface> = ({ onSearch }) => {
     if (event.target.value.length > 0) {
       const matchesFound = stops.filter((stop: Stop) => {
         // I want to show a max of 5 matches.
-        if (matches.length > 5) {
-          return false;
-        }
         return stop.Code.includes(event.target.value);
       });
-      setMatches(matchesFound);
+
+      // Get only the first 5 matches
+      setMatches(matchesFound.slice(0, 5));
     }
 
     if (event.target.value === "") {
@@ -38,8 +41,26 @@ const SearchBar: React.FC<SearchBarInterface> = ({ onSearch }) => {
   };
 
   const handleSearch = () => {
+    // Remove matches from underneath the search bar
+    setMatches([]);
+
     // Handle making the post request
     startLoad();
+
+    if (searchTerm.length > 5 || searchTerm.length < 5) {
+      endLoad();
+      toast({
+        title: "Invalid search term",
+        description: "The Stop Code must be 5 characters long",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+        variant: "left-accent",
+      });
+      setSearchTerm("");
+      return;
+    }
+
     SearchLineDataProvider("it", searchTerm).then((response: LineData) => {
       console.log(response);
       if (response) {
@@ -70,23 +91,35 @@ const SearchBar: React.FC<SearchBarInterface> = ({ onSearch }) => {
           transition: "1s",
         }}
       >
-        {matches.map((match: Stop, index: any) => {
-          return (
-            <>
-              <div key={index} className={styles.search_bar_results_item}>
-                {match.Code}
-              </div>
-              {index === matches.length - 1 ? (
-                ""
-              ) : (
+        {matches.length > 0 &&
+          matches.map((match: Stop, index: any) => {
+            return (
+              <React.Fragment
+                key={match.Code.toString() + "_" + index.toString()}
+              >
                 <div
-                  key={index + "_divider"}
-                  className={styles.search_bar_result_divider}
-                ></div>
-              )}
-            </>
-          );
-        })}
+                  key={index.toString()}
+                  className={styles.search_bar_results_item}
+                  onClick={() => {
+                    setSearchTerm(match.Code.toString().trim());
+                    startLoad();
+                    setMatches([]);
+                    endLoad();
+                  }}
+                >
+                  {match.Code}
+                </div>
+                {index === matches.length - 1 ? (
+                  ""
+                ) : (
+                  <div
+                    key={index.toString() + "_divider"}
+                    className={styles.search_bar_result_divider}
+                  ></div>
+                )}
+              </React.Fragment>
+            );
+          })}
       </div>
     </>
   );

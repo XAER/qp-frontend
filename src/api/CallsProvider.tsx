@@ -1,4 +1,4 @@
-import { handlePostRequest } from "./api";
+import { handleGetRequest, handlePostRequest } from "./api";
 import * as constants from "./EndpointConstants";
 
 export const SearchLineDataProvider = async (
@@ -14,6 +14,24 @@ export const SearchLineDataProvider = async (
     });
   } catch (err) {
     console.error(err);
+  }
+
+  return response;
+};
+
+export const GetRealTimeStopDataProvider = async (
+  languageName: string,
+  stopCode: string
+) => {
+  let response;
+
+  try {
+    response = await handleGetRequest(
+      constants.BACKEND_GET_STOP_REAL_TIME_DATA + `/${languageName}/${stopCode}`
+    );
+  } catch (err) {
+    console.error(err);
+    return err;
   }
 
   return response;

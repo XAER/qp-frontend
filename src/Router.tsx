@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { LoadingContext } from "./context/LoadingProvider";
+import { Spinner } from "@chakra-ui/react";
 import Home from "./pages/Home";
 
 const Router = () => {
@@ -25,7 +26,15 @@ const Router = () => {
             flexDirection: "column",
           }}
           id="loading-overlay"
-        ></div>
+        >
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="black"
+            size="xl"
+          />
+        </div>
       )}
       <Routes>
         <Route path="/" element={<Home />} />
